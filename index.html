@@ -1,67 +1,69 @@
 <!DOCTYPE html>
-  <html>
-    <head>
-      <meta charset="utf-8">
-      <title>VR Mini Game</title>
-      <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    </head>
-    <body>
-      <a-scene>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>VR Mini Game</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+</head>
+<body>
+    <a-scene>
         <!-- Небо -->
         <a-sky color="#ECECEC"></a-sky>
-        
+
         <!-- Пол -->
         <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
-        
+
         <!-- Камера и контроллер -->
         <a-entity camera look-controls position="0 1.6 0"></a-entity>
-        
-        <!-- Объекты для сбора -->
-        <a-box position="-1 0.5 -3" rotation="0 45 45" color="#4CC309"></a-box>
-        <a-sphere position="1 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-        <a-cylinder position="0 0.75 -5" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-        
+
+        <!-- Объекты для сбора с компонентом collectible -->
+        <a-box position="-1 0.5 -3" rotation="0 45 45" color="#4CC309" collectible></a-box>
+        <a-sphere position="1 1.25 -5" radius="1.25" color="#EF2D5E" collectible></a-sphere>
+        <a-cylinder position="0 0.75 -5" radius="0.5" height="1.5" color="#FFC65D" collectible></a-cylinder>
+
         <!-- Текст для отображения счета -->
         <a-text value="Score: 0" position="-1.5 2.5 -5" color="black"></a-text>
-        
-        <!- Таймер -->
-        <a-text id="timer" value="Time: 60" position="1.5 2.5 -5" color="black"></a-text>
-      </a-scene>
-      
-      <script>
-      AFRAME.registerComponent('collectible',{
-    init: function () {
-      this.el.addEventListener('click', () => {
-        // Удаление объекта
-        this.el.parentNode.removeChild(this.el);
-        
-        // Обновление счета
-        let scoreElement = document.querySelector('[text＿value="Score: "]');
-        let score = parseInt(scoreElement.getAttribute('text').value.split(': ')[1]) + 1;
-        scoreElement.setAttribute('text', { value: 'Score: ' + score });
-        });
-       }
-      });
-      let timeLeft = 60; // Время игры в секундах
-      let timerElement = document.querySelector('#timer');
 
-      function updateTimer() {
-        if (timeLeft > 0) {
-          timeLeft--;
-          timerElement.setAttribute('text', { value: 'Time: ' + timeLeft });
-        } else {
-          endGame();
+        <!-- Таймер -->
+        <a-text id="timer" value="Time: 60" position="1.5 2.5 -5" color="black"></a-text>
+    </a-scene>
+
+    <script>
+        AFRAME.registerComponent('collectible', {
+            init: function () {
+                this.el.addEventListener('click', () => {
+                    // Удаление объекта
+                    this.el.parentNode.removeChild(this.el);
+
+                    // Обновление счета
+                    let scoreElement = document.querySelector('[value="Score: 0"]');
+                    let score = parseInt(scoreElement.getAttribute('value').split(': ')[1]) + 1;
+                    scoreElement.setAttribute('value', 'Score: ' + score);
+                });
+            }
+        });
+
+        let timeLeft = 60; // Время игры в секундах
+        let timerElement = document.querySelector('#timer');
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                timerElement.setAttribute('value', 'Time: ' + timeLeft);
+            } else {
+                endGame();
+            }
         }
-      }
-        setInterval(updateTimer, 1000);
         
-      function endGame() {
-        let finalScore = parseInt(document.querySelector('[text＿value="Score: "]').getAttribute('text').value.split(':')[1]);
-        alert('Game Over! Your final score is: + finalScore);
-              
-        // Перезапуск игры
-        location.reload();
-      }
-      </script>
-    </body>
-  </html>
+        setInterval(updateTimer, 1000);
+
+        function endGame() {
+            let finalScore = parseInt(document.querySelector('[value="Score: 0"]').getAttribute('value').split(':')[1]);
+            alert('Game Over! Your final score is: ' + finalScore);
+
+            // Перезапуск игры
+            location.reload();
+        }
+    </script>
+</body>
+</html>
