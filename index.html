@@ -7,28 +7,27 @@
 </head>
 <body>
     <a-scene>
-        <!-- Небо -->
-        <a-sky color="#ECECEC"></a-sky>
+        <!-- 2. Создание сцены -->
+        <a-sky color="#87CEEB"></a-sky> <!-- Небо -->
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane> <!-- Пол -->
 
-        <!-- Пол -->
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
-
-        <!-- Камера и контроллер -->
+        <!-- 3. Создание игрока -->
         <a-entity camera look-controls position="0 1.6 0"></a-entity>
 
-        <!-- Объекты для сбора с компонентом collectible -->
+        <!-- 4. Создание объектов для сбора -->
         <a-box position="-1 0.5 -3" rotation="0 45 45" color="#4CC309" collectible></a-box>
         <a-sphere position="1 1.25 -5" radius="1.25" color="#EF2D5E" collectible></a-sphere>
         <a-cylinder position="0 0.75 -5" radius="0.5" height="1.5" color="#FFC65D" collectible></a-cylinder>
 
-        <!-- Текст для отображения счета -->
-        <a-text value="Score: 0" position="-1.5 2.5 -5" color="black"></a-text>
+        <!-- 6. Отображение счета -->
+        <a-text id="score" value="Score: 0" position="-1.5 2.5 -5" color="black"></a-text>
 
-        <!-- Таймер -->
+        <!-- 7. Добавление таймера -->
         <a-text id="timer" value="Time: 60" position="1.5 2.5 -5" color="black"></a-text>
     </a-scene>
 
     <script>
+        // Логика сбора объектов
         AFRAME.registerComponent('collectible', {
             init: function () {
                 this.el.addEventListener('click', () => {
@@ -36,7 +35,7 @@
                     this.el.parentNode.removeChild(this.el);
 
                     // Обновление счета
-                    let scoreElement = document.querySelector('[value="Score: 0"]');
+                    let scoreElement = document.querySelector('#score');
                     let score = parseInt(scoreElement.getAttribute('value').split(': ')[1]) + 1;
                     scoreElement.setAttribute('value', 'Score: ' + score);
                 });
@@ -54,11 +53,11 @@
                 endGame();
             }
         }
-        
+
         setInterval(updateTimer, 1000);
 
         function endGame() {
-            let finalScore = parseInt(document.querySelector('[value="Score: 0"]').getAttribute('value').split(':')[1]);
+            let finalScore = parseInt(document.querySelector('#score').getAttribute('value').split(': ')[1]);
             alert('Game Over! Your final score is: ' + finalScore);
 
             // Перезапуск игры
