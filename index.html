@@ -31,7 +31,7 @@
         </a-assets>    
 
         <a-entity id="player" position="0 1.6 0" wasd-controls>    
-            <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>    
+            <a-entity collider-check raycaster="objects: .collectible; showLine:true;" position="0 1 0"></a-entity>    
         </a-entity>     
         
         <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity> 
@@ -44,68 +44,51 @@
         let score = 0;    
         let timer = 60;    
         let timerInterval; // Переменная для хранения идентификатора интервала таймера 
- 
+
         function updateScore() {    
-            document.querySelector('#scoreText').setAttribute('value', `Score: ${score}`);    
+            document.querySelector('#scoreText').setAttribute('value', Score: ${score});    
         }    
- 
+
         function startTimer() {    
             timerInterval = setInterval(() => {    
                 timer--;    
-                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`);    
+                document.querySelector('#timerText').setAttribute('value', Time: ${timer});    
                 if (timer <= 0) {    
                     endGame();    
                 }    
             }, 1000);    
         }    
- 
+
         function endGame() {    
             clearInterval(timerInterval); // Остановка таймера 
             const gameOverText = document.querySelector('#gameOverText');    
-            gameOverText.setAttribute('value', `Game Over! Your score: ${score}`);    
+            gameOverText.setAttribute('value', Game Over! Your score: ${score});    
             gameOverText.setAttribute('visible', 'true');    
             // Дополнительно: остановить игровую логику если необходимо    
         }    
- 
+
         AFRAME.registerComponent('collectible', {    
             init: function () {    
                 this.el.addEventListener('collide', function () {    
                     score++;    
                     updateScore();    
                     this.parentNode.removeChild(this);    
-                });    
+                });
+
+                this.el.addEventListener('click', function () {
+                    score++;
+                    updateScore();
+                                        this.parentNode.removeChild(this);
+                });
             }    
         });    
- 
+
         document.querySelectorAll('.collectible').forEach((el) => {    
             el.setAttribute('collectible', '');    
         });    
- 
+
         startTimer();
-          AFRAME.registerComponent('thumbstick-movement', {
-    init: function () {
-      this.el.addEventListener('thumbstickmoved', (evt) => {
-        const player = document.querySelector('#player').object3D;
-        const direction = new THREE.Vector3();
-        player.getWorldDirection(direction);
-        direction.y = 0;
-        direction.normalize();
-
-        const right = new THREE.Vector3();
-        player.getWorldDirection(right);
-        right.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
-        right.normalize();
-
-        const forwardMovement = direction.multiplyScalar(evt.detail.y * 0.1);
-        const rightMovement = right.multiplyScalar(evt.detail.x * 0.1);
-        const movement = forwardMovement.add(rightMovement);
-
-        player.position.add(movement);
-      });
-    }
-  });
-
     </script>    
- 
+
 </body>    
 </html>
