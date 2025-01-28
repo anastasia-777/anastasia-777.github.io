@@ -31,7 +31,7 @@
         </a-assets>    
 
         <a-entity id="player" position="0 1.6 0" wasd-controls>    
-            <a-entity collider-check raycaster="objects: .collectible; showLine:true;" position="0 1 0"></a-entity>    
+            <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>    
         </a-entity>     
         
         <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity> 
@@ -44,58 +44,45 @@
         let score = 0;    
         let timer = 60;    
         let timerInterval; // Переменная для хранения идентификатора интервала таймера 
-
+ 
         function updateScore() {    
-            document.querySelector('#scoreText').setAttribute('value', Score: ${score});    
+            document.querySelector('#scoreText').setAttribute('value', `Score: ${score}`);    
         }    
-
+ 
         function startTimer() {    
             timerInterval = setInterval(() => {    
                 timer--;    
-                document.querySelector('#timerText').setAttribute('value', Time: ${timer});    
+                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`);    
                 if (timer <= 0) {    
                     endGame();    
                 }    
             }, 1000);    
         }    
-
+ 
         function endGame() {    
             clearInterval(timerInterval); // Остановка таймера 
             const gameOverText = document.querySelector('#gameOverText');    
-            gameOverText.setAttribute('value', Game Over! Your score: ${score});    
-            gameOverText.setAttribute('visible', 'true');  
-            // Дополнительно: остановить игровую логику если необходимо  
-            // Отключить взаимодействие с collectible
-            document.querySelectorAll('.collectible').forEach((el) => {
-                el.removeEventListener('click', collectibleClickHandler);
-                el.removeEventListener('collide', collectibleCollisionHandler);
-            });
+            gameOverText.setAttribute('value', `Game Over! Your score: ${score}`);    
+            gameOverText.setAttribute('visible', 'true');    
+            // Дополнительно: остановить игровую логику если необходимо    
         }    
-
-        function collectibleClickHandler() {
-            score++;
-            updateScore();
-            this.parentNode.removeChild(this);
-        }
-
-        function collectibleCollisionHandler() {
-            score++;
-            updateScore();
-            this.parentNode.removeChild(this);
-        }
-                AFRAME.registerComponent('collectible', {    
+ 
+        AFRAME.registerComponent('collectible', {    
             init: function () {    
-                this.el.addEventListener('click', collectibleClickHandler.bind(this.el));
-                this.el.addEventListener('collide', collectibleCollisionHandler.bind(this.el));
+                this.el.addEventListener('collide', function () {    
+                    score++;    
+                    updateScore();    
+                    this.parentNode.removeChild(this);    
+                });    
             }    
         });    
-
+ 
         document.querySelectorAll('.collectible').forEach((el) => {    
             el.setAttribute('collectible', '');    
         });    
-
+ 
         startTimer();
     </script>    
-
+ 
 </body>    
 </html>
