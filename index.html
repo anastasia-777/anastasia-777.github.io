@@ -1,81 +1,96 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Collectibles Game</title> 
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script> 
-</head> 
-<body> 
-    <a-scene> 
-        <a-sky color="#87CEEB"></a-sky> 
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7CFC00"></a-plane> 
-        
-        <a-camera position="0 1.6 0" wasd-controls> 
-            <a-cursor></a-cursor> 
-        </a-camera> 
-
-        <a-sphere position="0 1 -3" radius="0.5" color="#FF0000" class="collectible"></a-sphere> 
-        <a-box position="1 1 -5" depth="0.5" height="0.5" width="0.5" color="#00FF00" class="collectible"></a-box> 
-        <a-cylinder position="-1 1 -5" height="1" radius="0.5" color="#0000FF" class="collectible"></a-cylinder> 
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Collectibles Game</title>  
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>  
+</head>  
+<body>  
+    <a-scene>  
+        <a-sky color="#87CEEB"></a-sky>  
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7CFC00"></a-plane>  
          
-        <a-text id="scoreText" value="Score: 0" position="-5 3 -5" color="#000000"></a-text> 
-        <a-text id="timerText" value="Time: 60" position="5 3 -5" color="#000000"></a-text> 
-        <a-text id="gameOverText" value="" position="0 2 -3" color="#FF0000" visible="false"></a-text> 
+        <a-camera position="0 1.6 0" wasd-controls>  
+            <a-cursor></a-cursor>  
+        </a-camera>  
+ 
+        <!-- Заменяем сферу на куб с изменяющимся цветом -->
+        <a-box position="0 1 -3" depth="0.5" height="0.5" width="0.5" class="collectible" id="colorBox"></a-box>  
+        <a-box position="1 1 -5" depth="0.5" height="0.5" width="0.5" color="#00FF00" class="collectible"></a-box>  
+        <a-cylinder position="-1 1 -5" height="1" radius="0.5" color="#0000FF" class="collectible"></a-cylinder>  
+          
+        <a-text id="scoreText" value="Score: 0" position="-5 3 -5" color="#000000"></a-text>  
+        <a-text id="timerText" value="Time: 60" position="5 3 -5" color="#000000"></a-text>  
+        <a-text id="gameOverText" value="" position="0 2 -3" color="#FF0000" visible="false"></a-text>  
 
-        <a-assets> 
-            <a-asset-item id="myModel" src="rose.glb"></a-asset-item> 
-        </a-assets> 
+        <a-assets>  
+            <a-asset-item id="myModel" src="path_to_model.glb"></a-asset-item>  
+        </a-assets>  
+ 
+        <a-entity id="player">  
+            <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>  
+        </a-entity>  
+        <a-entity class="collidable" geometry="primitive: box" position="0 1 -3"></a-entity>  
+        <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity>  
+         
+    </a-scene>  
 
-        <a-entity id="player"> 
-            <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity> 
-        </a-entity> 
-        <a-entity class="collidable" geometry="primitive: box" position="0 1 -3"></a-entity> 
-        <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity> 
-        
-    </a-scene> 
+    <script>  
+        let score = 0;  
+        let timer = 60;  
 
-    <script> 
-        let score = 0; 
-        let timer = 60; 
+        function updateScore() {  
+            document.querySelector('#scoreText').setAttribute('value', `Score: ${score}`);  
+        }  
+ 
+        function startTimer() {  
+            setInterval(() => {  
+                timer--;  
+                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`);  
+                if (timer <= 0) {  
+                    endGame();  
+                }  
+            }, 1000);  
+        }  
+ 
+        function endGame() {  
+            const gameOverText = document.querySelector('#gameOverText');  
+            gameOverText.setAttribute('value', `Game Over! Your score: ${score}`);  
+            gameOverText.setAttribute('visible', 'true');  
+            // Дополнительно: остановить игровую логику если необходимо  
+        }  
+ 
+        AFRAME.registerComponent('collectible', {  
+            init: function () {  
+                this.el.addEventListener('collide', function () {  
+                    score++;  
+                    updateScore();  
+                    this.parentNode.removeChild(this);  
+                });  
+            }  
+        });  
 
-        function updateScore() { 
-            document.querySelector('#scoreText').setAttribute('value', `Score: ${score}`); 
-        } 
+        // Функция для генерации случайного цвета
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';  
+            let color = '#';  
+            for (let i = 0; i < 6; i++) {  
+                color += letters[Math.floor(Math.random() * 16)];  
+            }  
+            return color;  
+        }
 
-        function startTimer() { 
-            setInterval(() => { 
-                timer--; 
-                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`); 
-                if (timer <= 0) { 
-                    endGame(); 
-                } 
-            }, 1000); 
-        } 
+        // Устанавливаем случайный цвет на куб при загрузке страницы
+        const colorBox = document.querySelector('#colorBox');  
+        colorBox.setAttribute('color', getRandomColor()); 
 
-        function endGame() { 
-            const gameOverText = document.querySelector('#gameOverText'); 
-            gameOverText.setAttribute('value', `Game Over! Your score: ${score}`); 
-            gameOverText.setAttribute('visible', 'true'); 
-            // Дополнительно: остановить игровую логику если необходимо 
-        } 
+        document.querySelectorAll('.collectible').forEach((el) => {  
+            el.setAttribute('collectible', '');  
+        });  
 
-        AFRAME.registerComponent('collectible', { 
-            init: function () { 
-                this.el.addEventListener('collide', function () { 
-                    score++; 
-                    updateScore(); 
-                    this.parentNode.removeChild(this); 
-                }); 
-            } 
-        }); 
-
-        document.querySelectorAll('.collectible').forEach((el) => { 
-            el.setAttribute('collectible', ''); 
-        }); 
-
-        startTimer(); 
-    </script> 
-
-</body> 
+        startTimer();  
+    </script>  
+ 
+</body>  
 </html>
