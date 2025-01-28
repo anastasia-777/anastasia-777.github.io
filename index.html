@@ -33,7 +33,9 @@
         <a-entity id="player">   
             <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>   
         </a-entity>    
-        <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity>   
+        <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity>
+        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
+        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
           
     </a-scene>   
 
