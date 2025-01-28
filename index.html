@@ -1,88 +1,89 @@
-<!DOCTYPE html>   
-<html lang="en">   
-<head>   
-    <meta charset="UTF-8">   
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
-    <title>Collectibles Game</title>   
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>   
-</head>   
-<body>   
-    <a-scene>   
-        <a-sky color="#87CEEB"></a-sky>   
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="50" height="50" color="#7CFC00"></a-plane>   
-         
-        <a-camera position="0 1.6 0" wasd-controls>   
-            <a-cursor></a-cursor>   
-        </a-camera>   
-  
-        <a-sphere position="0 1 -3" radius="0.5" color="#FF0000" class="collectible"></a-sphere>   
-        <a-sphere position="1 1 -5" radius="0.5" color="#00FF00" class="collectible"></a-sphere>   
-        <a-sphere position="-1 1 -6" radius="0.5" color="#0000FF" class="collectible"></a-sphere>
-        <a-sphere position="2 1 -10" radius="0.5" color="#0000FF" class="collectible"></a-sphere>
-        <a-sphere position="-4 1 -3" radius="0.5" color="#0000FF" class="collectible"></a-sphere>
-        <a-sphere position="6 1 5" radius="0.5" color="#0000FF" class="collectible"></a-sphere>
-           
-        <a-text id="scoreText" value="Score: 0" position="-5 3 -5" color="#000000"></a-text>   
-        <a-text id="timerText" value="Time: 60" position="5 3 -5" color="#000000"></a-text>   
-        <a-text id="gameOverText" value="" position="0 2 -3" color="#FF0000" visible="false"></a-text>   
-
-        <a-assets>   
-            <a-asset-item id="myModel" src="rose.glb"></a-asset-item>   
-        </a-assets>   
-
-        <a-entity id="player">   
-            <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>   
-        </a-entity>    
-        <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity>
-        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
-        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
+<!DOCTYPE html>    
+<html lang="en">    
+<head>    
+    <meta charset="UTF-8">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <title>Collectibles Game</title>    
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>    
+</head>    
+<body>    
+    <a-scene>    
+        <a-sky color="#87CEEB"></a-sky>    
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="50" height="50" color="#7CFC00"></a-plane>    
           
-    </a-scene>   
+        <a-camera position="0 1.6 0">    
+            <a-cursor></a-cursor>    
+        </a-camera>    
+   
+        <a-sphere position="0 1 -3" radius="0.5" color="#FF0000" class="collectible"></a-sphere>    
+        <a-sphere position="1 1 -5" radius="0.5" color="#00FF00" class="collectible"></a-sphere>    
+        <a-sphere position="-1 1 -6" radius="0.5" color="#0000FF" class="collectible"></a-sphere> 
+        <a-sphere position="2 1 -10" radius="0.5" color="#0000FF" class="collectible"></a-sphere> 
+        <a-sphere position="-4 1 -3" radius="0.5" color="#0000FF" class="collectible"></a-sphere> 
+        <a-sphere position="6 1 5" radius="0.5" color="#0000FF" class="collectible"></a-sphere> 
+            
+        <a-text id="scoreText" value="Score: 0" position="-5 3 -5" color="#000000"></a-text>    
+        <a-text id="timerText" value="Time: 60" position="5 3 -5" color="#000000"></a-text>    
+        <a-text id="gameOverText" value="" position="0 2 -3" color="#FF0000" visible="false"></a-text>    
 
-    <script>   
-        let score = 0;   
-        let timer = 60;   
-        let timerInterval; // Переменная для хранения идентификатора интервала таймера
+        <a-assets>    
+            <a-asset-item id="myModel" src="rose.glb"></a-asset-item>    
+        </a-assets>    
 
-        function updateScore() {   
-            document.querySelector('#scoreText').setAttribute('value', `Score: ${score}`);   
-        }   
+        <a-entity id="player" position="0 1.6 0" wasd-controls>    
+            <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>    
+        </a-entity>     
+        
+        <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity> 
+        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity> 
+        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity> 
+           
+    </a-scene>    
 
-        function startTimer() {   
-            timerInterval = setInterval(() => {   
-                timer--;   
-                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`);   
-                if (timer <= 0) {   
-                    endGame();   
-                }   
-            }, 1000);   
-        }   
-
-        function endGame() {   
-            clearInterval(timerInterval); // Остановка таймера
-            const gameOverText = document.querySelector('#gameOverText');   
-            gameOverText.setAttribute('value', `Game Over! Your score: ${score}`);   
-            gameOverText.setAttribute('visible', 'true');   
-            // Дополнительно: остановить игровую логику если необходимо   
-        }   
-
-        AFRAME.registerComponent('collectible', {   
-            init: function () {   
-                this.el.addEventListener('collide', function () {   
-                    score++;   
-                    updateScore();   
-                    this.parentNode.removeChild(this);   
-                });   
-            }   
-        });   
-
-        document.querySelectorAll('.collectible').forEach((el) => {   
-            el.setAttribute('collectible', '');   
-        });   
-
-        startTimer();   
-    </script>   
-
-</body>   
+    <script>    
+        let score = 0;    
+        let timer = 60;    
+        let timerInterval; // Переменная для хранения идентификатора интервала таймера 
+ 
+        function updateScore() {    
+            document.querySelector('#scoreText').setAttribute('value', `Score: ${score}`);    
+        }    
+ 
+        function startTimer() {    
+            timerInterval = setInterval(() => {    
+                timer--;    
+                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`);    
+                if (timer <= 0) {    
+                    endGame();    
+                }    
+            }, 1000);    
+        }    
+ 
+        function endGame() {    
+            clearInterval(timerInterval); // Остановка таймера 
+            const gameOverText = document.querySelector('#gameOverText');    
+            gameOverText.setAttribute('value', `Game Over! Your score: ${score}`);    
+            gameOverText.setAttribute('visible', 'true');    
+            // Дополнительно: остановить игровую логику если необходимо    
+        }    
+ 
+        AFRAME.registerComponent('collectible', {    
+            init: function () {    
+                this.el.addEventListener('collide', function () {    
+                    score++;    
+                    updateScore();    
+                    this.parentNode.removeChild(this);    
+                });    
+            }    
+        });    
+ 
+        document.querySelectorAll('.collectible').forEach((el) => {    
+            el.setAttribute('collectible', '');    
+        });    
+ 
+        startTimer();
+        
+    </script>    
+ 
+</body>    
 </html>
-
