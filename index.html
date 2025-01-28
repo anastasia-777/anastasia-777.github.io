@@ -49,15 +49,15 @@
             document.querySelector('#scoreText').setAttribute('value', Score: ${score});    
         }    
 
-        function startTimer() {    
+          function startTimer() {    
             timerInterval = setInterval(() => {    
                 timer--;    
-                document.querySelector('#timerText').setAttribute('value', Time: ${timer});    
+                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`);    
                 if (timer <= 0) {    
                     endGame();    
                 }    
             }, 1000);    
-        }    
+        }   
 
         function endGame() {    
             clearInterval(timerInterval); // Остановка таймера 
