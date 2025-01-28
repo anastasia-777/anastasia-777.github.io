@@ -82,7 +82,29 @@
         });    
  
         startTimer();
-        
+          AFRAME.registerComponent('thumbstick-movement', {
+    init: function () {
+      this.el.addEventListener('thumbstickmoved', (evt) => {
+        const player = document.querySelector('#player').object3D;
+        const direction = new THREE.Vector3();
+        player.getWorldDirection(direction);
+        direction.y = 0;
+        direction.normalize();
+
+        const right = new THREE.Vector3();
+        player.getWorldDirection(right);
+        right.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+        right.normalize();
+
+        const forwardMovement = direction.multiplyScalar(evt.detail.y * 0.1);
+        const rightMovement = right.multiplyScalar(evt.detail.x * 0.1);
+        const movement = forwardMovement.add(rightMovement);
+
+        player.position.add(movement);
+      });
+    }
+  });
+
     </script>    
  
 </body>    
