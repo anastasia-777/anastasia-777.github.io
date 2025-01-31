@@ -85,18 +85,20 @@
             }
         });
 
-        AFRAME.registerComponent('controller-listener', {
+        // Компонент для сбора предметов по клику в VR
+        AFRAME.registerComponent('controller-collect', {
             init: function () {
                 this.onTriggerDown = this.onTriggerDown.bind(this);
                 this.el.addEventListener('triggerdown', this.onTriggerDown);
             },
             onTriggerDown: function () {
-                const handPosition = this.el.object3D.position;
+                const controller = this.el;
                 const collectibles = document.querySelectorAll('.collectible');
 
                 collectibles.forEach(collectible => {
                     const collectiblePosition = collectible.object3D.position;
-                    const distance = handPosition.distanceTo(collectiblePosition);
+                    const controllerPosition = controller.object3D.position;
+                    const distance = controllerPosition.distanceTo(collectiblePosition);
 
                     if (distance < 1) { // Проверка расстояния до объекта
                         score++;
@@ -136,8 +138,8 @@
         createCollectibles();
 
         // Добавляем компонент для обработки событий контроллеров
-        document.querySelector('#leftHand').setAttribute('controller-listener', '');
-        document.querySelector('#rightHand').setAttribute('controller-listener', '');
+        document.querySelector('#leftHand').setAttribute('controller-collect', '');
+        document.querySelector('#rightHand').setAttribute('controller-collect', '');
 
         document.addEventListener('click', () => {
             document.querySelector('#collectSound').components.sound.playSound();
