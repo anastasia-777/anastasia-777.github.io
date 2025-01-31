@@ -6,143 +6,88 @@
     <title>Collectibles Game</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
+    <!-- Остальная часть сцены остается без изменений -->
     <a-scene physics="debug: true; gravity: -9.8;" vr-mode-ui="enabled: true">
-        <a-sky color="#FFE4B5"></a-sky>
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="50" height="50" color="#696969" static-body></a-plane>
-
-        <a-camera position="0 1.6 0">
-            <a-cursor></a-cursor>
-        </a-camera>
-
-        <a-text id="scoreText" value="Score: 0" position="-5 3 -5" color="#000000"></a-text>
-        <a-text id="timerText" value="Time: 60" position="5 3 -5" color="#000000"></a-text>
-        <a-text id="gameOverText" value="" position="0 2 -3" color="#FF0000" visible="false"></a-text>
-
-        <a-assets>
-            <a-asset-item id="myModel" src="rose.glb"></a-asset-item>
-        </a-assets>
-
-        <!-- VR-контроллеры -->
-        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
-        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
-
-        <!-- Движущийся объект -->
-        <a-entity id="movingObj" geometry="primitive: cone" material="color: red" 
-                  position="0 2 -8" animation="property: position; to: 7 2 -10; dur: 2000; loop: true">
-        </a-entity>
-
-        <!-- Модель -->
-        <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity>
-
-        <!-- Частицы -->
-        <a-entity id="explosion" particle-system="preset: explosion; color: #FFFF00; particleCount: 500; size: 2; lifetime: 1.5;"></a-entity>
-
-        <!-- Звук -->
-        <a-sound src="zvook.wav" autoplay="false" id="collectSound"></a-sound>
+        <!-- ... все предыдущие элементы сцены ... -->
     </a-scene>
 
     <script>
-        let score = 0;
-        let timer = 60;
-        let timerInterval;
-        let isGameOver = false;
+        // ... предыдущий код таймера и логики игры ...
 
-        function updateScore() {
-            document.querySelector('#scoreText').setAttribute('value', `Score: ${score}`);
+        // Создание кастомной геометрии с помощью BufferGeometry
+        function createCustomGeometry() {
+            const geometry = new THREE.BufferGeometry();
+            
+            // Вершины для треугольной пирамиды
+            const vertices = new Float32Array([
+                0.0, 1.0, 0.0,   // вершина
+                -1.0, -1.0, 1.0, // основание
+                1.0, -1.0, 1.0,
+                1.0, -1.0, -1.0,
+                -1.0, -1.0, -1.0
+            ]);
+
+            // Индексы для треугольников
+            const indices = new Uint16Array([
+                0, 1, 2,    // передняя грань
+                0, 2, 3,    // правая грань
+                0, 3, 4,    // задняя грань
+                0, 4, 1,    // левая грань
+                1, 2, 3,    // нижняя грань 1
+                1, 3, 4     // нижняя грань 2
+            ]);
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+            geometry.computeVertexNormals();
+
+            return geometry;
         }
 
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                if (isGameOver) return;
-                timer--;
-                document.querySelector('#timerText').setAttribute('value', `Time: ${timer}`);
-                if (timer <= 0) {
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        function endGame() {
-            isGameOver = true;
-            clearInterval(timerInterval);
-            const gameOverText = document.querySelector('#gameOverText');
-            gameOverText.setAttribute('value', `Game Over! Your score: ${score}`);
-            gameOverText.setAttribute('visible', 'true');
-        }
-
-        AFRAME.registerComponent('collectible', {
-            init: function () {
-                this.el.addEventListener('collide', () => {
-                    if (isGameOver) return;
-                    score++;
-                    updateScore();
-                    this.el.parentNode.removeChild(this.el);
-                    document.querySelector('#collectSound').components.sound.playSound();
-                });
-            }
+        // Создание материалов
+        const customMaterial = new THREE.MeshStandardMaterial({
+            color: 0xff0000,
+            metalness: 0.3,
+            roughness: 0.4
         });
 
-        // Компонент для сбора предметов по клику в VR
-        AFRAME.registerComponent('controller-collect', {
-            init: function () {
-                this.onTriggerDown = this.onTriggerDown.bind(this);
-                this.el.addEventListener('triggerdown', this.onTriggerDown);
-            },
-            onTriggerDown: function () {
-                const controller = this.el;
-                const collectibles = document.querySelectorAll('.collectible');
-
-                collectibles.forEach(collectible => {
-                    const collectiblePosition = collectible.object3D.position;
-                    const controllerPosition = controller.object3D.position;
-                    const distance = controllerPosition.distanceTo(collectiblePosition);
-
-                    if (distance < 1) { // Проверка расстояния до объекта
-                        score++;
-                        updateScore();
-                        collectible.parentNode.removeChild(collectible);
-                        document.querySelector('#collectSound').components.sound.playSound();
-                    }
-                });
-            }
-        });
-
-        function spawnObjects() {
-            const positions = [];
-            for (let i = 0; i < 5; i++) {
-                const x = Math.random() * 10 - 5;
-                const z = Math.random() * 10 - 5;
-                positions.push({x, y: 1, z});
-            }
-            return positions;
-        }
-
+        // Модифицированная функция создания коллекционных объектов
         function createCollectibles() {
             const positions = spawnObjects();
+            const geometry = createCustomGeometry();
+            
             positions.forEach(pos => {
-                const sphere = document.createElement('a-sphere');
-                sphere.setAttribute('position', pos);
-                sphere.setAttribute('radius', '0.5');
-                sphere.setAttribute('color', '#FF0000');
-                sphere.setAttribute('class', 'collectible');
-                sphere.setAttribute('collectible', '');
-                sphere.setAttribute('dynamic-body', '');
-                document.querySelector('a-scene').appendChild(sphere);
+                // Создание Three.js меша
+                const mesh = new THREE.Mesh(geometry, customMaterial);
+                mesh.scale.set(0.5, 0.5, 0.5);
+                
+                // Создание A-Frame entity для интеграции Three.js объекта
+                const entity = document.createElement('a-entity');
+                entity.setAttribute('position', pos);
+                entity.setAttribute('class', 'collectible');
+                entity.setAttribute('dynamic-body', 'shape: none;'); // Отключаем автоматическую форму коллизий
+                
+                // Добавляем Three.js объект в A-Frame
+                entity.object3D.add(mesh);
+                
+                // Ручное создание формы коллизий
+                const physicsShape = new Ammo.btBoxShape(
+                    new Ammo.btVector3(0.5, 0.5, 0.5)
+                );
+                
+                entity.setAttribute('body__collider', {
+                    shape: 'box',
+                    halfExtents: {x: 0.5, y: 0.5, z: 0.5}
+                });
+
+                document.querySelector('a-scene').appendChild(entity);
             });
         }
 
-        startTimer();
-        createCollectibles();
-
-        // Добавляем компонент для обработки событий контроллеров
-        document.querySelector('#leftHand').setAttribute('controller-collect', '');
-        document.querySelector('#rightHand').setAttribute('controller-collect', '');
-
-        document.addEventListener('click', () => {
-            document.querySelector('#collectSound').components.sound.playSound();
-        });
+        // ... остальной код без изменений ...
     </script>
 </body>
 </html>
