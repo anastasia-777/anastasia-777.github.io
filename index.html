@@ -6,10 +6,10 @@
     <title>Collectibles Game</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-
+    <script src="https://unpkg.com/aframe-particle-system-component@1.1.x/dist/aframe-particle-system-component.min.js"></script>
 </head>
 <body>
-    <a-scene physics="debug: true; gravity: -9.8;">
+    <a-scene physics="debug: true; gravity: -9.8;" vr-mode-ui="enabled: true">
         <a-sky color="#FFE4B5"></a-sky>
         <a-plane position="0 0 -4" rotation="-90 0 0" width="50" height="50" color="#696969" static-body></a-plane>
 
@@ -25,15 +25,22 @@
             <a-asset-item id="myModel" src="rose.glb"></a-asset-item>
         </a-assets>
 
-        <a-entity id="player" position="0 1.6 0" wasd-controls>
-            <a-entity collider="objects: .collectible" position="0 1 0"></a-entity>
-        </a-entity>
+        <!-- VR-контроллеры -->
+        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
+        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
+
+        <!-- Движущийся объект -->
         <a-entity id="movingObj" geometry="primitive: cone" material="color: red" 
                   position="0 2 -8" animation="property: position; to: 7 2 -10; dur: 2000; loop: true">
         </a-entity>
 
+        <!-- Модель -->
         <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity>
+
+        <!-- Частицы -->
         <a-entity id="explosion" particle-system="preset: explosion; color: #FFFF00; particleCount: 500; size: 2; lifetime: 1.5;"></a-entity>
+
+        <!-- Звук -->
         <a-sound src="zvook.wav" autoplay="false" id="collectSound"></a-sound>
     </a-scene>
 
@@ -78,6 +85,29 @@
             }
         });
 
+        AFRAME.registerComponent('controller-listener', {
+            init: function () {
+                this.onTriggerDown = this.onTriggerDown.bind(this);
+                this.el.addEventListener('triggerdown', this.onTriggerDown);
+            },
+            onTriggerDown: function () {
+                const handPosition = this.el.object3D.position;
+                const collectibles = document.querySelectorAll('.collectible');
+
+                collectibles.forEach(collectible => {
+                    const collectiblePosition = collectible.object3D.position;
+                    const distance = handPosition.distanceTo(collectiblePosition);
+
+                    if (distance < 1) { // Проверка расстояния до объекта
+                        score++;
+                        updateScore();
+                        collectible.parentNode.removeChild(collectible);
+                        document.querySelector('#collectSound').components.sound.playSound();
+                    }
+                });
+            }
+        });
+
         function spawnObjects() {
             const positions = [];
             for (let i = 0; i < 5; i++) {
@@ -104,6 +134,10 @@
 
         startTimer();
         createCollectibles();
+
+        // Добавляем компонент для обработки событий контроллеров
+        document.querySelector('#leftHand').setAttribute('controller-listener', '');
+        document.querySelector('#rightHand').setAttribute('controller-listener', '');
 
         document.addEventListener('click', () => {
             document.querySelector('#collectSound').components.sound.playSound();
