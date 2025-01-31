@@ -33,13 +33,14 @@
 
         <a-entity id="player" position="0 1.6 0" wasd-controls>    
             <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>    
-        </a-entity>     
+        </a-entity>
+        <a-entity id="movingObj" geometry="primitive: cone" material="color: red" position="0 2 -8" animation="property: position; to: 5 2 -8; dur: 2000; loop: true"> </a-entity>
         
         <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity> 
         <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity> 
         <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity> 
         <a-entity id="explosion" particle-system="preset: explosion; color: yellow"></a-entity>
-        <a-sound src="yoursound.wav" autoplay="false" id="collectSound"></a-sound>
+        <a-sound src="zvook.wav" autoplay="false" id="collectSound"></a-sound>
     </a-scene>    
 
     <script>    
@@ -84,6 +85,8 @@
         });    
  
         startTimer();
+
+        document.querySelector('#collectSound').components.sound.playSound();
     </script>    
  
 </body>    
