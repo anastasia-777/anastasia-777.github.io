@@ -6,22 +6,16 @@
     <title>Collectibles Game</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://unpkg.com/aframe-particle-system-component@1.1.x/dist/aframe-particle-system-component.min.js"></script>
 </head>
 <body>
     <a-scene physics="debug: true; gravity: -9.8;">
         <a-sky color="#FFE4B5"></a-sky>
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="50" height="50" color="#696969"></a-plane>
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="50" height="50" color="#696969" static-body></a-plane>
 
         <a-camera position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-camera>
-
-        <a-sphere position="0 1 -3" radius="0.5" color="#FF0000" class="collectible" collectible></a-sphere>
-        <a-sphere position="1 1 -5" radius="0.5" color="#00FF00" class="collectible" collectible></a-sphere>
-        <a-sphere position="-1 1 -6" radius="0.5" color="#0000FF" class="collectible" collectible></a-sphere>
-        <a-sphere position="2 1 -10" radius="0.5" color="#0000FF" class="collectible" collectible></a-sphere>
-        <a-sphere position="-4 1 -3" radius="0.5" color="#0000FF" class="collectible" collectible></a-sphere>
-        <a-sphere position="6 1 5" radius="0.5" color="#0000FF" class="collectible" collectible></a-sphere>
 
         <a-text id="scoreText" value="Score: 0" position="-5 3 -5" color="#000000"></a-text>
         <a-text id="timerText" value="Time: 60" position="5 3 -5" color="#000000"></a-text>
@@ -34,13 +28,12 @@
         <a-entity id="player" position="0 1.6 0" wasd-controls>
             <a-entity collider="objects: .collectible" position="0 1 0"></a-entity>
         </a-entity>
-        <a-entity id="movingObj" geometry="primitive: cone" material="color: red" position="0 2 -8" animation="property: position; to: 7 2 -10; dur: 2000; loop: true"></a-entity>
+        <a-entity id="movingObj" geometry="primitive: cone" material="color: red" 
+                  position="0 2 -8" animation="property: position; to: 7 2 -10; dur: 2000; loop: true">
+        </a-entity>
 
         <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity>
-        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
-        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
         <a-entity id="explosion" particle-system="preset: explosion; color: #FFFF00; particleCount: 500; size: 2; lifetime: 1.5;"></a-entity>
-        <a-entity geometry="primitive: box" material="color: blue" position="0 1 -10" dynamic-body></a-entity>
         <a-sound src="zvook.wav" autoplay="false" id="collectSound"></a-sound>
     </a-scene>
 
@@ -85,7 +78,32 @@
             }
         });
 
+        function spawnObjects() {
+            const positions = [];
+            for (let i = 0; i < 5; i++) {
+                const x = Math.random() * 10 - 5;
+                const z = Math.random() * 10 - 5;
+                positions.push({x, y: 1, z});
+            }
+            return positions;
+        }
+
+        function createCollectibles() {
+            const positions = spawnObjects();
+            positions.forEach(pos => {
+                const sphere = document.createElement('a-sphere');
+                sphere.setAttribute('position', pos);
+                sphere.setAttribute('radius', '0.5');
+                sphere.setAttribute('color', '#FF0000');
+                sphere.setAttribute('class', 'collectible');
+                sphere.setAttribute('collectible', '');
+                sphere.setAttribute('dynamic-body', '');
+                document.querySelector('a-scene').appendChild(sphere);
+            });
+        }
+
         startTimer();
+        createCollectibles();
 
         document.addEventListener('click', () => {
             document.querySelector('#collectSound').components.sound.playSound();
