@@ -27,20 +27,20 @@
         <a-text id="timerText" value="Time: 60" position="5 3 -5" color="#000000"></a-text>    
         <a-text id="gameOverText" value="" position="0 2 -3" color="#FF0000" visible="false"></a-text>    
 
-        <a-assets>    
-            <a-asset-item id="myModel" src="rose.glb"></a-asset-item>    
-        </a-assets>    
+        <a-assets>
+            <a-asset-item id="myModel" src="rose.glb"></a-asset-item>
+        </a-assets>
 
         <a-entity id="player" position="0 1.6 0" wasd-controls>    
             <a-entity collider-check raycaster="objects: .collidable; showLine:true;" position="0 1 0"></a-entity>    
         </a-entity>
-        <a-entity id="movingObj" geometry="primitive: cone" material="color: red" position="0 2 -8" animation="property: position; to: 7 2 -10; dur: 2000; loop: true"> </a-entity>
+        <a-entity id="movingObj" geometry="primitive: cone" material="color: red" position="0 2 -8" animation="property: position; to: 7 2 -10; dur: 2000; loop: true"></a-entity>
         
         <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity> 
-        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity> 
-        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity> 
+        <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
+        <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
         <a-entity id="explosion" particle-system="preset: explosion; color: blue"></a-entity>
-        <a-entity geometry="primitive: box" material="color: blue" position="0 5 -10" dynamic-body></a-entity>
+        <a-entity geometry="primitive: box" material="color: blue" position="0 1 -10" dynamic-body></a-entity>
         <a-sound src="zvook.wav" autoplay="false" id="collectSound"></a-sound>
     </a-scene>    
 
