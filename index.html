@@ -39,7 +39,7 @@
         <a-entity gltf-model="#myModel" position="2 1 -5"></a-entity> 
         <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
         <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
-        <a-entity id="explosion" particle-system="preset: explosion; color: blue"></a-entity>
+        <a-entity id="explosion" particle-system="preset: explosion; color: #FFFF00; particleCount: 500; size: 2; lifetime: 1.5;"></a-entity>
         <a-entity geometry="primitive: box" material="color: blue" position="0 1 -10" dynamic-body></a-entity>
         <a-sound src="zvook.wav" autoplay="false" id="collectSound"></a-sound>
     </a-scene>    
