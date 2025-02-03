@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Frame Game</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
+</head>
+<body>
+    <a-scene physics="debug: true">
+        <!-- Sky -->
+        <a-sky color="#87CEEB"></a-sky>
+        <!-- Ground -->
+        <a-plane static-body position="0 0 -4" rotation="-90 0 0" width="30" height="30" color="#7CFC00"></a-plane>
+        <!-- Player -->
+        <a-entity id="player" position="0 1.6 0">
+            <a-camera></a-camera>
+            <a-entity cursor="fuse: true; fuseTimeout: 500"
+                      position="0 0 -1"
+                      geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                      material="color: black; shader: flat">
+            </a-entity>
+        </a-entity>
+        <!-- Collectible Objects -->
+        <a-entity id="collectibles">
+            <a-sphere class="collectible" position="-3 1 -5" radius="0.5" color="#FF0000" dynamic-body></a-sphere>
+            <a-box class="collectible" position="3 1 -5" width="1" height="1" depth="1" color="#00FF00" dynamic-body></a-box>
+            <a-cylinder class="collectible" position="0 1 -8" radius="0.5" height="1" color="#0000FF" dynamic-body></a-cylinder>
+        </a-entity>
+        <!-- Score Display -->
+        <a-text id="score" value="Score: 0" position="-1.5 2.5 -3" color="#000000"></a-text>
+        <!-- Timer -->
+        <a-text id="timer" value="Time: 60" position="1.5 2.5 -3" color="#000000"></a-text>
+        <!-- Game Over Message -->
+        <a-text id="gameOver" value="Game Over!" position="0 1.5 -3" color="#FF0000" visible="false"></a-text>
+        <!-- 3D Model -->
+        <a-entity gltf-model="url(https://cdn.aframe.io/test-models/models/glTF-2.0/virtualcity/VC.gltf)" scale="0.1 0.1 0.1" position="0 1 -10"></a-entity>
+        <!-- Sound -->
+        <a-sound src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg" autoplay="false" id="collectSound"></a-sound>
+    </a-scene>
+    <script>
+        // Initialize score and time
+        let score = 0;
+        let time = 60;
+        // Function to update the score
+        function updateScore() {
+            document.querySelector('#score').setAttribute('value', `Score: ${score}`);
+        }
+        // Function to update the timer
+        function updateTimer() {
+            document.querySelector('#timer').setAttribute('value', `Time: ${time}`);
+            if (time <= 0) {
+                endGame();
+            } else {
+                time--;
+                setTimeout(updateTimer, 1000);
+            }
+        }
+        // Function to end the game
+        function endGame() {
+            document.querySelector('#gameOver').setAttribute('visible', true);
+            document.querySelector('#gameOver').setAttribute('value', `Game Over! Final Score: ${score}`);
+        }
+        // Function to handle collisions with collectible objects
+        AFRAME.registerComponent('collectible', {
+            init: function () {
+                this.el.addEventListener('collide', (e) => {
+                    if (e.detail.body.el.classList.contains('collectible')) {
+                        this.el.setAttribute('visible', false);
+                        score++;
+                        updateScore();
+                        document.querySelector('#collectSound').components.sound.playSound();
+                    }
+                });
+            }
+        });
+        // Apply collectible component to all collectible objects
+        document.querySelectorAll('.collectible').forEach(el => {
+            el.setAttribute('collectible', '');
+        });
+        // Start the timer
+        updateTimer();
+    </script>
+</body>
+</html>
