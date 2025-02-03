@@ -6,7 +6,6 @@
     <title>A-Frame Game</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-
 </head>
 <body>
     <a-scene physics="debug: true">
@@ -76,10 +75,10 @@
             document.querySelector('#gameOver').setAttribute('value', `Game Over! Final Score: ${score}`);
         }
 
-        // Function to handle collisions
+        // Function to handle clicks on collectible objects
         AFRAME.registerComponent('collectible', {
             init: function () {
-                this.el.addEventListener('collide', () => {
+                this.el.addEventListener('click', () => {
                     this.el.setAttribute('visible', false);
                     score++;
                     updateScore();
