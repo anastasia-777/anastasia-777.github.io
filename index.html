@@ -75,14 +75,16 @@
             document.querySelector('#gameOver').setAttribute('value', `Game Over! Final Score: ${score}`);
         }
 
-        // Function to handle clicks on collectible objects
+        // Function to handle collisions with collectible objects
         AFRAME.registerComponent('collectible', {
             init: function () {
-                this.el.addEventListener('click', () => {
-                    this.el.setAttribute('visible', false);
-                    score++;
-                    updateScore();
-                    document.querySelector('#collectSound').components.sound.playSound();
+                this.el.addEventListener('collide', (e) => {
+                    if (e.detail.body.el.classList.contains('collectible')) {
+                        this.el.setAttribute('visible', false);
+                        score++;
+                        updateScore();
+                        document.querySelector('#collectSound').components.sound.playSound();
+                    }
                 });
             }
         });
